@@ -1,8 +1,9 @@
-const {mongoose}=require('./db/mongoose')
+const {mongoose}=require('./db/mongoose');
 const express=require('express');
 const bodyParser=require('body-parser');
 const {Todo}=require('./models/Todo');
-const {ObjectID}=require('mongodb')
+const {ObjectID}=require('mongodb');
+const _=require('lodash');
 const app=express();
 app.use(bodyParser.json());
 const port = 3000
@@ -54,6 +55,28 @@ app.delete('/todos/:id',(req,res)=>{
         res.send(err)
     })
 })  
+app.patch('/todos/:id',(req,res)=>{
+    const id=req.params.id;
+    const body=_.pick(req.body,['text','completed'])
+    if( _.isBoolean(body.completed) && body.completed){
+        body.completedAt=new Date().getTime();
+    }else{
+        body.completed=false;
+        body.completedAt=null;
+    }
+    if(!ObjectID.isValid(id)){
+        return res.status(400).send('id is not valid')
+    }
+
+    Todo.findByIdAndUpdate(id,{$set:body},{new:true ,useFindAndModify:false}).then((todo)=>{
+        if(!todo){
+            return res.status(404).send('todo does not exist')
+        }
+        res.send({todo})
+    }).catch(err=>{
+        res.status(400).send(err)
+    })
+})
 app.listen(port,()=>{
     console.log('liseting on port 3000')
 })

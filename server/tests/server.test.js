@@ -2,15 +2,16 @@ const expect=require('expect');
 const request =require('supertest');
 const {Todo}=require('../models/Todo');
 const {app}=require('../server')
+const _=require('lodash')
 const {ObjectID}=require('mongodb')
 const todos =[
     {
-        _id: new ObjectID(),
+        _id:new ObjectID(),
         text:"first test todo"
     },
     {
-        _id: new ObjectID(),
-        text:"second text todo"
+        _id:new ObjectID(),   
+        text:"second text todo",
     }
 ]
 beforeEach(done=>{
@@ -122,4 +123,43 @@ describe('DELETE /todos/:id',()=>{
         .expect(404)
         .end(done)
     })
+})
+
+describe('PATCH /todos/id',()=>{
+    const id =todos[0]._id.toHexString()
+    const todoUpdate={
+        text :"the first updated",
+        completed:true
+    }
+    it('should update the todo and return the updated',(done)=>{
+        request(app)
+        .patch(`/todos/${id}`)
+        .send(todoUpdate)
+        .expect(200)
+        .expect((res)=>{
+            expect(res.body.todo.text).toBe(todoUpdate.text)
+            expect(res.body.todo.completed).toBe(true)
+            expect(_.isNumber(res.body.todo.completedAt)).toBe(true)
+        })
+        .end(done)
+    })
+    it('should clear completed at when todo is not completed',(done)=>{
+        
+        const id =todos[0]._id.toHexString()
+        const todoUpdate={
+            text :"the first updated second time",
+            completed:false
+        }
+        request(app)
+        .patch(`/todos/${id}`)
+        .send(todoUpdate)
+        .expect(200)
+        .expect((res)=>{
+            expect(res.body.todo.text).toBe(todoUpdate.text)
+            expect(res.body.todo.completed).toBe(false)
+            expect(res.body.todo.completedAt).toBe(null)
+        })
+        .end(done)
+    })
+
 })
