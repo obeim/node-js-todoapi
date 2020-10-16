@@ -5,6 +5,7 @@ const bodyParser=require('body-parser');
 const {Todo}=require('./models/Todo');
 const {ObjectID}=require('mongodb');
 const _=require('lodash');
+const {User} = require('./models/User');
 const app=express();
 
 app.use(bodyParser.json());
@@ -75,6 +76,16 @@ app.patch('/todos/:id',(req,res)=>{
             return res.status(404).send('todo does not exist')
         }
         res.send({todo})
+    }).catch(err=>{
+        res.status(400).send(err)
+    })
+})
+
+app.post('/todos/users',(req,res)=>{
+    const body=_.pick(req.body,['email','password'])
+    const user=new User(body)
+    user.save().then(user=>{
+        res.status(200).send(user)
     }).catch(err=>{
         res.status(400).send(err)
     })
