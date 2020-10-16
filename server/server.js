@@ -1,3 +1,4 @@
+require('./config/config')
 const {mongoose}=require('./db/mongoose');
 const express=require('express');
 const bodyParser=require('body-parser');
@@ -5,8 +6,9 @@ const {Todo}=require('./models/Todo');
 const {ObjectID}=require('mongodb');
 const _=require('lodash');
 const app=express();
+
 app.use(bodyParser.json());
-const port = 3000
+const port = process.env.PORT
 app.post('/todos',(req,res)=>{
     const todo=new Todo({
         text :req.body.text
@@ -78,7 +80,7 @@ app.patch('/todos/:id',(req,res)=>{
     })
 })
 app.listen(port,()=>{
-    console.log('liseting on port 3000')
+    console.log(`liseting on port ${port}`)
 })
 
 module.exports={app}
