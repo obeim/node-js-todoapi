@@ -98,3 +98,28 @@ describe('GET /todos/:id',()=>{
         .end(done)
     })
 })
+
+describe('DELETE /todos/:id',()=>{
+    it(' should delete a single item',(done)=>{
+        request(app)
+        .delete(`/todos/${todos[0]._id.toHexString()}`)
+        .expect(200)
+        .expect((res)=>{
+            expect(res.body.todo.text).toBe(todos[0].text)
+        })
+        .end(done)
+    })
+    it('should return 400 if id is not valid',(done)=>{
+        request(app)
+        .delete('/todos/5f888218cc72701274177b333')
+        .expect(400)
+        .end(done)
+    })
+    it('should return 404 if id is not found',(done)=>{
+        const id =new ObjectID()
+        request(app)
+        .delete(`/todos/${id.toHexString()}`)
+        .expect(404)
+        .end(done)
+    })
+})
