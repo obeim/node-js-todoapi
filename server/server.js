@@ -83,16 +83,7 @@ app.patch('/todos/:id',(req,res)=>{
     })
 })
 
-app.post('/todos/users',(req,res)=>{
-    const body=_.pick(req.body,['email','password'])
-    const user=new User(body)
-    user.save().then(user=>{
-        res.status(200).send(user)
-    }).catch(err=>{
-        res.status(400).send(err)
-    })
-})
-app.post('/signup',(req,res)=>{
+app.post('/users',(req,res)=>{
     const body=_.pick(req.body,['email','password'])
     const user =new User(body);
 

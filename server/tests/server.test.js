@@ -3,23 +3,12 @@ const request =require('supertest');
 const {Todo}=require('../models/Todo');
 const {app}=require('../server')
 const _=require('lodash')
+const {User}=require('./../models/User');
 const {ObjectID}=require('mongodb')
-const todos =[
-    {
-        _id:new ObjectID(),
-        text:"first test todo"
-    },
-    {
-        _id:new ObjectID(),   
-        text:"second text todo",
-    }
-]
-beforeEach(done=>{
-    Todo.deleteMany({}).then(()=>{
-        return Todo.insertMany(todos)
-        
-    }).then(()=>done())
-})
+const {popluateTodos,todos,users, popluateUsers}=require('./seed/seed')
+
+beforeEach(popluateUsers)
+beforeEach(popluateTodos)
 
 describe('POST /todos',()=>{
     it('should add new todo ',(done)=>{
@@ -163,3 +152,51 @@ describe('PATCH /todos/id',()=>{
     })
 
 })
+
+describe(' POST /users',()=>{
+    it('should create new user if data is valid ',(done)=>{
+        var email='o@o.com';
+        var password='123456';
+
+        request(app)
+        .post('/users')
+        .send({email,password})
+        .expect(200)
+        .expect((res)=>{
+
+            expect(res.body.email).toBe(email);
+        })
+        .end((err)=>{
+            if(err){
+                return done(err)
+            }
+            User.findOne({email}).then(user=>{
+                expect(user).toBeTruthy()
+                expect(user.password).toBeTruthy()
+                done();
+            })
+        })
+   
+    })
+    it('should return 400 if data is not valid',(done)=>{
+        request(app)
+        .post('/users')
+        .send({})
+        .expect(400)
+        .expect(res=>{
+            expect(res.body).toBeTruthy()
+        })
+        .end(done)
+    })
+    it('it should not create a user if email alread exist',(done)=>{
+        var email=users[0].email;
+        var password=users[0].password;
+        request(app)
+        .post('/users')
+        .send({email,password})
+        .expect(400)
+        .end(done)
+
+    })
+})
+
