@@ -6,6 +6,7 @@ const {Todo}=require('./models/Todo');
 const {ObjectID}=require('mongodb');
 const _=require('lodash');
 const {User} = require('./models/User');
+const {authenticate}=require('./middlewares/authenicate')
 const jwt =require('jsonwebtoken')
 const app=express();
 
@@ -102,6 +103,10 @@ app.post('/signup',(req,res)=>{
     }).catch(err=>{
         res.status(400).send(err)
     })
+})
+
+app.post('/users/me',authenticate,(req,res)=>{
+    res.send(req.user)
 })
 app.listen(port,()=>{
     console.log(`liseting on port ${port}`)
