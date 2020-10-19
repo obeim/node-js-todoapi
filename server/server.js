@@ -5,6 +5,7 @@ const bodyParser=require('body-parser');
 const {Todo}=require('./models/Todo');
 const {ObjectID}=require('mongodb');
 const _=require('lodash');
+const bcrypt=require('bcryptjs')
 const {User} = require('./models/User');
 const {authenticate}=require('./middlewares/authenicate')
 const jwt =require('jsonwebtoken')
@@ -96,8 +97,31 @@ app.post('/users',(req,res)=>{
     })
 })
 
-app.post('/users/me',authenticate,(req,res)=>{
+app.get('/users/me',authenticate,(req,res)=>{
     res.send(req.user)
+})
+
+app.post('/login',(req,res)=>{
+    const email=req.body.email;
+    const password=req.body.password;
+    User.findOne({email}).then((user)=>{
+        if(!user){
+            return Promise.reject()
+        }
+        bcrypt.compare(password,user.password,(err,result)=>{
+            if(result){
+                return user.generateAuthToken().then((token)=>{
+                    res.header('x-auth',token).send(user)
+                })
+            }
+            else{
+                res.send('wrong password')
+            }
+        })
+
+    }).catch(err=>{
+        res.status(400).send('not found')
+    })
 })
 app.listen(port,()=>{
     console.log(`liseting on port ${port}`)
