@@ -200,3 +200,38 @@ describe(' POST /users',()=>{
     })
 })
 
+describe('POST /login ',()=>{
+
+    it('should login sucessfully when info is correct ',(done)=>{
+        var email =users[0].email;
+        var password=users[0].password
+        request(app)
+        .post('/login')
+        .send({email,password})
+        .expect(200)
+        .expect((res)=>{
+            expect(res.headers['x-auth']).toBeTruthy()
+            expect(res.body.email).toBe(email)
+        })
+        .end(done)
+    })
+    it('should return 400 when password is incorrect ',(done)=>{
+        var email=users[0].email
+        var password='123333'
+        request(app)
+        .post('/login')
+        .send({email,password})
+        .expect(400)
+        .expect((res)=>{
+            expect(res.headers['x-auth']).toBeFalsy()
+        })
+        .end(done)
+    })
+    it('should return 404 when user does not exist ',(done)=>{
+        request(app)
+        .post('/login')
+        .send({})
+        .expect(404)
+        .end(done)
+    })
+})

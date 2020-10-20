@@ -115,13 +115,24 @@ app.post('/login',(req,res)=>{
                 })
             }
             else{
-                res.send('wrong password')
+                res.status(400).send('wrong password')
             }
         })
 
     }).catch(err=>{
-        res.status(400).send('not found')
+        res.status(404).send('not found')
     })
+})
+
+app.get('/logout',authenticate,(req,res)=>{
+    const user=req.user;
+    user.logout(req.token).then(()=>{
+        res.status(200).send();
+    },()=>{
+        res.status(400).send();
+    })
+    
+    
 })
 app.listen(port,()=>{
     console.log(`liseting on port ${port}`)

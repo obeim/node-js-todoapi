@@ -2,8 +2,8 @@ const {Todo}=require('../../models/Todo');
 const {ObjectID}=require('mongodb')
 const {User}=require('../../models/User')
 const jwt=require('jsonwebtoken')
-const userOne=new ObjectID();
-const userTwo=new ObjectID();
+var userOne=new ObjectID();
+var userTwo=new ObjectID();
 const users=[
 
     {
